@@ -30,7 +30,6 @@ const EventSchema = new Schema<IEvent>(
     },
     slug: {
       type: String,
-      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -110,8 +109,7 @@ const EventSchema = new Schema<IEvent>(
 );
 
 // Pre-save hook for slug generation and data normalization
-// @ts-expect-error - Mongoose v9 type definitions have an issue with 'save' hook typing
-EventSchema.pre('save', function (next: (err?: Error) => void) {
+EventSchema.pre('save', function () {
   const event = this as IEvent;
 
   // Generate slug only if title changed or document is new
@@ -121,15 +119,23 @@ EventSchema.pre('save', function (next: (err?: Error) => void) {
 
   // Normalize date to ISO format if it's not already
   if (event.isModified('date')) {
-    event.date = normalizeDate(event.date);
+    try {
+      event.date = normalizeDate(event.date);
+    } catch (error) {
+      // Keep original date if normalization fails
+      console.error('Date normalization error:', error);
+    }
   }
 
   // Normalize time format (HH:MM)
   if (event.isModified('time')) {
-    event.time = normalizeTime(event.time);
+    try {
+      event.time = normalizeTime(event.time);
+    } catch (error) {
+      // Keep original time if normalization fails
+      console.error('Time normalization error:', error);
+    }
   }
-
-  next();
 });
 
 // Helper function to generate URL-friendly slug

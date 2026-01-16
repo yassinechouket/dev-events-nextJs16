@@ -1,18 +1,40 @@
 import ExploreBtn from "./components/ExploreBtn";
 import EventCard from "./components/EventCard";
+import CreateEventForm from "./components/CreateEventForm";
 import {IEvent} from "../database/event.model";
 import {cacheLife} from "next/cache";
+import {events} from "../lib/constents";
 
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-
-
+// Get BASE_URL with fallback for build/prerender
+/*const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 
+  (process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'http://localhost:3000');*/
 
 const Home = async() => {
-  'use cache'
+  /*'use cache'
   cacheLife('hours')
-  const response = await fetch(`${BASE_URL}/api/events`);
-  const { events } = await response.json();
+  
+  let events: IEvent[] = [];
+  
+  try {
+    const response = await fetch(`${BASE_URL}/api/events`, { 
+      cache: 'no-store',
+      next: { revalidate: 3600 }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch events: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    events = data.events || [];
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    // Fallback to empty array on error
+  }*/
+  
   
 
   
@@ -38,12 +60,14 @@ const Home = async() => {
           </h2>
 
           <ul className="events">
-            {events.map((event:IEvent) => (
+            {events.map((event) => (
               <EventCard key={event.title} title={event.title} image={event.image} slug={event.slug} location={event.location} date={event.date} time={event.time} />
             ))}
           </ul>
         </div>
       </section>
+
+      {/* <CreateEventForm /> */}
     </>
   )
 }

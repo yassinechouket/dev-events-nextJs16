@@ -3,7 +3,7 @@ import connectDB from "@/lib/mongodb";
 import Event from "@/database/event.model";
 import { v2 as cloudinary } from 'cloudinary';
 
-async function POST(req:NextRequest){
+export async function POST(req:NextRequest){
     try {
         await connectDB();
 
