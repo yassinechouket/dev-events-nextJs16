@@ -1,40 +1,25 @@
 import ExploreBtn from "./components/ExploreBtn";
 import EventCard from "./components/EventCard";
-import CreateEventForm from "./components/CreateEventForm";
 import {IEvent} from "../database/event.model";
 import {cacheLife} from "next/cache";
-import {events} from "../lib/constents";
-
-
-// Get BASE_URL with fallback for build/prerender
-/*const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 
-  (process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : 'http://localhost:3000');*/
+import connectDB from "@/lib/mongodb";
+import Event from "@/database/event.model";
 
 const Home = async() => {
-  /*'use cache'
+  'use cache'
   cacheLife('hours')
   
+  // Directly query database instead of fetching from API route
   let events: IEvent[] = [];
   
   try {
-    const response = await fetch(`${BASE_URL}/api/events`, { 
-      cache: 'no-store',
-      next: { revalidate: 3600 }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch events: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    events = data.events || [];
+    await connectDB();
+    events = (await Event.find().sort({ createdAt: -1 }).lean()) as IEvent[];
   } catch (error) {
     console.error('Error fetching events:', error);
     // Fallback to empty array on error
-  }*/
-  
+  }
+
   
 
   
@@ -67,7 +52,7 @@ const Home = async() => {
         </div>
       </section>
 
-      {/* <CreateEventForm /> */}
+      
     </>
   )
 }

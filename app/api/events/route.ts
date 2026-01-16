@@ -17,25 +17,42 @@ export async function POST(req:NextRequest){
             return NextResponse.json({ message: 'Invalid JSON data format'}, { status: 400 })
         }
 
-        const file = formData.get('image') as File;
+        const imageField = formData.get('image');
 
-        if(!file) return NextResponse.json({ message: 'Image file is required'}, { status: 400 })
+        if(!imageField) {
+            return NextResponse.json({ message: 'Image is required'}, { status: 400 });
+        }
 
         let tags = JSON.parse(formData.get('tags') as string);
         let agenda = JSON.parse(formData.get('agenda') as string);
 
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        // Handle both file upload and URL string
+        let imageUrl: string;
 
-        const uploadResult = await new Promise((resolve, reject) => {
-            cloudinary.uploader.upload_stream({ resource_type: 'image', folder: 'DevEvent' }, (error, results) => {
-                if(error) return reject(error);
+        if (typeof imageField === 'string') {
+            // If it's a URL string, use it directly
+            imageUrl = imageField;
+        } else if (imageField instanceof File || imageField instanceof Blob) {
+            // If it's a File or Blob, upload to Cloudinary
+            const bytes = await imageField.arrayBuffer();
+            const buffer = Buffer.from(bytes);
 
-                resolve(results);
-            }).end(buffer);
-        });
+            const uploadResult = await new Promise((resolve, reject) => {
+                cloudinary.uploader.upload_stream({ resource_type: 'image', folder: 'DevEvent' }, (error, results) => {
+                    if(error) return reject(error);
+                    resolve(results);
+                }).end(buffer);
+            });
 
-        event.image = (uploadResult as { secure_url: string }).secure_url;
+            imageUrl = (uploadResult as { secure_url: string }).secure_url;
+        } else {
+            return NextResponse.json({ 
+                message: 'Invalid image format. Expected File, Blob, or URL string.',
+                error: `Received type: ${typeof imageField}`
+            }, { status: 400 });
+        }
+
+        event.image = imageUrl;
 
         const createdEvent = await Event.create({
             ...event,
