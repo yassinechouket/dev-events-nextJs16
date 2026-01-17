@@ -75,7 +75,14 @@ export async function GET() {
 
         return NextResponse.json({ message: 'Events fetched successfully', events }, { status: 200 });
     } catch (e) {
-        return NextResponse.json({ message: 'Event fetching failed', error: e }, { status: 500 });
+        console.error('Error in GET /api/events:', e);
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        const errorStack = e instanceof Error ? e.stack : undefined;
+        return NextResponse.json({ 
+            message: 'Event fetching failed', 
+            error: errorMessage,
+            stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
+        }, { status: 500 });
     }
 }
 
