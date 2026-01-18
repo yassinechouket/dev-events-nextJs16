@@ -2,12 +2,14 @@
 import { useState } from "react";
 
 
-export default function BookEvent() {
+export default function BookEvent({eventId,slug}: {eventId: string; slug: string}) {
     const [email, setEmail] = useState('');
     const [submitted, setSubmitted]=useState(false);
 
 
-    const handleSubmit = (e: React.FormEvent) => {}
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+    }
 
     return (
         <div id="book-event">
