@@ -88,7 +88,7 @@ const EventDetails = async ({ params }: { params: Promise<{ slug: string }> }) =
                 <div className="content">
                     <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-cyan-500/20">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                        <Image src={image} alt="Event Banner" width={800} height={400} className="banner w-full h-auto object-cover" />
+                        <img src={image} alt="Event Banner" width={800} height={400} className="banner w-full h-auto object-cover" />
                     </div>
 
                     <section className="flex-col-gap-2 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-xl p-6 border border-slate-700/50 backdrop-blur">

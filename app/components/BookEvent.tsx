@@ -21,6 +21,7 @@ export default function BookEvent({eventId,slug}: {eventId: string; slug: string
                         <label htmlFor="email">Email Address</label>
                         <input
                             type="email"
+                            color="white"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             id="email"
