@@ -1,8 +1,34 @@
 'use client';
 import { useState } from "react";
 import { createBooking } from "@/lib/action/booking.actions";
-import posthog from "posthog-js";
 
+
+
+export function Input(props: React.ComponentPropsWithoutRef<'input'>){
+    return <input {...props}/>;
+}
+export function Button(props: React.ComponentPropsWithoutRef<'button'>){
+    return <button {...props}/>;
+}
+const Form=({onSubmit}: React.ComponentPropsWithoutRef<'form'>)=>{
+    const [email, setEmail] = useState('');
+    return(
+    <form onSubmit={onSubmit}>
+        <div>
+            <label htmlFor="email">Email Address</label>
+            <Input
+                type="email"
+                color="white"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                id="email"
+                placeholder="Enter your email address"
+            />
+        </div>
+
+        <Button type="submit" className="button-submit">Submit</Button>
+    </form>);
+}
 
 export default function BookEvent({eventId,slug}: {eventId: string; slug: string}) {
     const [email, setEmail] = useState('');
@@ -11,40 +37,24 @@ export default function BookEvent({eventId,slug}: {eventId: string; slug: string
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        const { success } = await createBooking({ eventId, slug, email });
-
-        if(success) {
+        const result = await createBooking({ eventId, slug, email });
+        const { success, error } = result;
+        if (success) {
             setSubmitted(true);
-            posthog.capture('event_booked', { eventId, slug, email })
         } else {
-            console.error('Booking creation failed')
-            posthog.captureException('Booking creation failed')
+            console.error('Booking creation failed', error);
         }
-    }
+    };
 
     return (
         <div id="book-event">
             {submitted ? (
                 <p className="text-sm">Thank you for signing up!</p>
-            ): (
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <label htmlFor="email">Email Address</label>
-                        <input
-                            type="email"
-                            color="white"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            id="email"
-                            placeholder="Enter your email address"
-                        />
-                    </div>
-
-                    <button type="submit" className="button-submit">Submit</button>
-                </form>
-                )}
-            </div>
-        )
-}
+            ) : (
+                <Form onSubmit={handleSubmit} />
+            )}
+        </div>
+    )
+    
+    }
 
