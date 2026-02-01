@@ -10,10 +10,11 @@ export function Input(props: React.ComponentPropsWithoutRef<'input'>){
 export function Button(props: React.ComponentPropsWithoutRef<'button'>){
     return <button {...props}/>;
 }
-const Form=({onSubmit}: React.ComponentPropsWithoutRef<'form'>)=>{
+type FormProps = React.ComponentPropsWithoutRef<'form'>;
+const Form=(props: FormProps)=>{
     const [email, setEmail] = useState('');
     return(
-    <form onSubmit={onSubmit}>
+    <form {...props}>
         <div>
             <label htmlFor="email">Email Address</label>
             <Input
