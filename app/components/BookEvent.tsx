@@ -1,61 +1,58 @@
-'use client';
+// components/BookEvent.tsx
+"use client";
+
 import { useState } from "react";
-import { createBooking } from "@/lib/action/booking.actions";
+import { Input, Button } from "./ui";
+import { createBookingSafe } from "@/lib/action/booking.safe";
+import type { BookingResult } from "@/lib/schemas/booking.schema";
 
+type BookEventProps = {
+  eventId: string;
+  slug: string;
+};
 
+export default function BookEvent({ eventId, slug }: BookEventProps) {
+  const [email, setEmail] = useState<string | null>(null);
+  const [result, setResult] = useState<BookingResult | null>(null);
 
-export function Input(props: React.ComponentPropsWithoutRef<'input'>){
-    return <input {...props}/>;
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!email) return;
+
+    const bookingResult = await createBookingSafe({
+      eventId,
+      slug,
+      email,
+    });
+
+    setResult(bookingResult);
+  }
+
+  if (result?.success) {
+    return <p className="text-sm">Thank you for signing up!</p>;
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="email">Email Address</label>
+        <Input
+          id="email"
+          type="email"
+          value={email ?? ""}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email address"
+          required
+        />
+      </div>
+
+      {result?.error && (
+        <p className="text-red-500 text-sm">{result.error}</p>
+      )}
+
+      <Button type="submit" className="button-submit">
+        Submit
+      </Button>
+    </form>
+  );
 }
-export function Button(props: React.ComponentPropsWithoutRef<'button'>){
-    return <button {...props}/>;
-}
-type FormProps = React.ComponentPropsWithoutRef<'form'>;
-const Form=(props: FormProps)=>{
-    const [email, setEmail] = useState('');
-    return(
-    <form {...props}>
-        <div>
-            <label htmlFor="email">Email Address</label>
-            <Input
-                type="email"
-                color="white"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                id="email"
-                placeholder="Enter your email address"
-            />
-        </div>
-
-        <Button type="submit" className="button-submit">Submit</Button>
-    </form>);
-}
-
-export default function BookEvent({eventId,slug}: {eventId: string; slug: string}) {
-    const [email, setEmail] = useState('');
-    const [submitted, setSubmitted]=useState(false);
-
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const result = await createBooking({ eventId, slug, email });
-        const { success, error } = result;
-        if (success) {
-            setSubmitted(true);
-        } else {
-            console.error('Booking creation failed', error);
-        }
-    };
-
-    return (
-        <div id="book-event">
-            {submitted ? (
-                <p className="text-sm">Thank you for signing up!</p>
-            ) : (
-                <Form onSubmit={handleSubmit} />
-            )}
-        </div>
-    )
-    
-    }
-
