@@ -1,9 +1,7 @@
 'use client';
 
 import Image from "next/image";
-const Button=(props: React.ComponentPropsWithoutRef<'button'>)=>{
-    return <button {...props}/>;
-}
+import { Button } from "./ui";
 
 const ExploreBtn = () => {
     return (
